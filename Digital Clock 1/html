@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>World Clock — Choose a Timezone</title>
+  <style>
+    
+    :root{
+      --bg1:#0f1724; 
+      --bg2:#102a43;  
+      --card:#0b1220;
+      --glass: rgba(255,255,255,0.04);
+      --muted: #9fb0c8;
+      --accent: #6ee7b7;
+      --accent-2: #60a5fa;
+      --glass-2: rgba(255,255,255,0.06);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family:Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Arial}
+    body{background:linear-gradient(180deg,var(--bg1) 0%, #071429 60%);display:flex;align-items:center;justify-content:center;padding:40px;color:#e6eef8}
+
+    .wrap{width:min(980px,96%);display:grid;grid-template-columns:1fr 360px;gap:24px}
+    @media (max-width:980px){.wrap{grid-template-columns:1fr}}
+ 
+    .card{background:linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));border-radius:18px;padding:28px;box-shadow:0 12px 50px rgba(2,6,23,0.7);backdrop-filter: blur(8px)}
+    .main{
+      display:flex;flex-direction:column;gap:8px;align-items:center;justify-content:center;padding:12px 6px
+    }
+
+    .time-row{display:flex;align-items:end;gap:12px}
+    .digital{font-weight:800;letter-spacing:2px}
+    .time-large{font-size:84px;color:linear-gradient(90deg,var(--accent),var(--accent-2));}
+    .time-large span{display:inline-block}
+    .ampm{font-size:18px;font-weight:700;color:var(--muted);margin-bottom:10px}
+    .date{font-size:16px;color:var(--muted)}
+ 
+    .glass-panel{width:100%;margin-top:18px;background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));padding:14px;border-radius:12px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+ 
+    .side{display:flex;flex-direction:column;gap:14px}
+    label{font-size:13px;color:var(--muted);display:block;margin-bottom:6px}
+    select,input{width:100%;padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit;font-size:15px}
+    .row{display:flex;gap:8px}
+    button{padding:10px 12px;border-radius:10px;border:none;background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#052023;font-weight:700;cursor:pointer}
+
+    .hint{font-size:13px;color:var(--muted)}
+
+     
+    .small-clocks{display:flex;gap:12px;flex-wrap:wrap}
+    .mini{background:var(--glass-2);padding:10px 12px;border-radius:10px;min-width:120px;text-align:center}
+    .mini .city{font-weight:700}
+    .mini .t{font-size:20px;margin-top:6px}
+ 
+    .reflect{position:relative}
+    .reflect::after{content:'';position:absolute;left:8%;top:6%;width:84%;height:40%;border-radius:10px;background:linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.01));filter:blur(10px);opacity:0.35;pointer-events:none}
+
+    .brand{font-size:12px;color:var(--muted);text-align:center;margin-top:6px}
+  
+    @media (max-width:520px){
+      .time-large{font-size:44px}
+      .wrap{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <!-- main clock card -->
+    <div class="card main reflect">
+      <div style="text-align:center;">
+        <div style="font-weight:700;font-size:18px">World Friendly Clock</div>
+        <div style="font-size:13px;color:var(--muted);margin-top:6px">Pick a timezone and see warm human greetings for that place.</div>
+      </div>
+
+      <div style="height:18px"></div>
+
+      <div class="time-row">
+        <div class="digital time-large" id="timeDisplay">--:--:--</div>
+        <div class="ampm" id="ampmDisplay"> </div>
+      </div>
+
+      <div class="date" id="dateDisplay">Loading date…</div>
+
+      <div class="glass-panel">
+        <div style="flex:1">
+          <div style="font-weight:700">Timezone</div>
+          <div id="tzName" style="color:var(--muted);margin-top:6px">Local</div>
+        </div>
+
+        <div style="flex:1;text-align:right">
+          <div style="font-weight:700">Greeting</div>
+          <div id="greetingLarge" style="color:var(--muted);margin-top:6px">Hello!</div>
+        </div>
+      </div>
+
+      <div class="brand">Tip: you can type a full timezone like "America/Chicago" in the custom field.</div>
+    </div>
+
+    <!-- side controls -->
+    <div class="card side">
+      <div>
+        <label for="preset">Choose a timezone</label>
+        <select id="preset">
+          <option value="local">⦿ Local (Your computer)</option>
+          <option value="UTC">UTC — Coordinated Universal Time</option>
+          <option value="America/New_York">New York — America/New_York</option>
+          <option value="America/Chicago">Chicago — America/Chicago</option>
+          <option value="America/Los_Angeles">Los Angeles — America/Los_Angeles</option>
+          <option value="Europe/London">London — Europe/London</option>
+          <option value="Europe/Paris">Paris — Europe/Paris</option>
+          <option value="Asia/Kolkata">Mumbai — Asia/Kolkata</option>
+          <option value="Asia/Tokyo">Tokyo — Asia/Tokyo</option>
+          <option value="Australia/Sydney">Sydney — Australia/Sydney</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="custom">Or enter custom IANA timezone</label>
+        <input id="custom" list="tzlist" placeholder="e.g. Pacific/Auckland or Europe/Berlin" />
+        <datalist id="tzlist">
+          <option>Pacific/Auckland</option>
+          <option>Europe/Berlin</option>
+          <option>Africa/Cairo</option>
+          <option>Asia/Dubai</option>
+          <option>Asia/Ho_Chi_Minh</option>
+        </datalist>
+      </div>
+
+      <div class="row">
+        <div style="flex:1">
+          <label for="format">Clock format</label>
+          <select id="format">
+            <option value="24">24-hour</option>
+            <option value="12">12-hour (AM/PM)</option>
+          </select>
+        </div>
+
+        <div style="flex:1">
+          <label for="seconds">Seconds</label>
+          <select id="seconds">
+            <option value="true">Show</option>
+            <option value="false">Hide</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:8px">
+        <button id="apply">Apply</button>
+        <button id="saveBtn" style="background:transparent;border:1px solid rgba(255,255,255,0.06);color:var(--muted)">Save</button>
+      </div>
+
+      <div style="height:6px"></div>
+
+      <div style="font-weight:700;margin-bottom:8px">Quick previews</div>
+      <div class="small-clocks">
+        <div class="mini"><div class="city">New York</div><div class="t" id="mini-ny">--:--</div></div>
+        <div class="mini"><div class="city">London</div><div class="t" id="mini-ldn">--:--</div></div>
+        <div class="mini"><div class="city">Tokyo</div><div class="t" id="mini-tok">--:--</div></div>
+        <div class="mini"><div class="city">Mumbai</div><div class="t" id="mini-mum">--:--</div></div>
+      </div>
+
+      <div class="hint">This uses the browser's Intl API — type exact IANA time zones for best results. If a timezone isn't valid it will fall back to your local time.</div>
+    </div>
+  </div>
+
+  <script>
+     
+    const preset = document.getElementById('preset')
+    const custom = document.getElementById('custom')
+    const apply = document.getElementById('apply')
+    const saveBtn = document.getElementById('saveBtn')
+    const format = document.getElementById('format')
+    const seconds = document.getElementById('seconds')
+
+    const timeDisplay = document.getElementById('timeDisplay')
+    const ampmDisplay = document.getElementById('ampmDisplay')
+    const dateDisplay = document.getElementById('dateDisplay')
+    const tzName = document.getElementById('tzName')
+    const greetingLarge = document.getElementById('greetingLarge')
+
+    const miniNY = document.getElementById('mini-ny')
+    const miniLDN = document.getElementById('mini-ldn')
+    const miniTOK = document.getElementById('mini-tok')
+    const miniMUM = document.getElementById('mini-mum')
+
+    const SETTINGS_KEY = 'beautiful_world_clock_v1'
+ 
+    let state = {
+      timezone: 'local',
+      hour12: false,
+      showSeconds: true
+    }
+ 
+    try {
+      const saved = JSON.parse(localStorage.getItem(SETTINGS_KEY) || 'null')
+      if (saved) state = Object.assign(state, saved)
+    } catch (e) { /* ignore */ }
+ 
+    if ([...preset.options].some(o => o.value === state.timezone)) preset.value = state.timezone
+    format.value = state.hour12 ? '12' : '24'
+    seconds.value = state.showSeconds ? 'true' : 'false'
+ 
+    function getZonedDate(timeZone) {
+      if (!timeZone || timeZone === 'local') return new Date()
+      try {
+        const parts = new Intl.DateTimeFormat('en-US', {
+          timeZone: timeZone,
+          hour12: false,
+          year: 'numeric', month: '2-digit', day: '2-digit',
+          hour: '2-digit', minute: '2-digit', second: '2-digit'
+        }).formatToParts(new Date())
+
+        const map = {}
+        for (const p of parts) map[p.type] = p.value
+        
+        const iso = `${map.year}-${map.month}-${map.day}T${map.hour}:${map.minute}:${map.second}Z`
+        return new Date(iso)
+      } catch (e) {
+        return new Date()
+      }
+    }
+ 
+    function formatTimeForDisplay(d) {
+      let hours = d.getUTCHours()
+      const minutes = d.getUTCMinutes()
+      const secs = d.getUTCSeconds()
+      const use12 = (format.value === '12')
+      let ampm = ''
+      if (use12) {
+        ampm = hours >= 12 ? 'PM' : 'AM'
+        hours = hours % 12 || 12
+      }
+      const hh = String(hours).padStart(2,'0')
+      const mm = String(minutes).padStart(2,'0')
+      const ss = String(secs).padStart(2,'0')
+      const showSec = seconds.value === 'true'
+      return {time: showSec ? `${hh}:${mm}:${ss}` : `${hh}:${mm}`, ampm}
+    }
+
+    function greetingForHour(h) {
+      if (h < 12) return '☀️ Good Morning!'
+      if (h < 18) return '🌤️ Good Afternoon!'
+      if (h < 21) return '🌆 Good Evening!'
+      return '🌙 Good Night!'
+    }
+ 
+    function refresh() {
+      const tz = state.timezone
+      const d = getZonedDate(tz)
+      const {time, ampm} = formatTimeForDisplay(d)
+
+      timeDisplay.textContent = time
+      ampmDisplay.textContent = (format.value === '12') ? ampm : ''
+ 
+      try {
+        const dateStr = new Intl.DateTimeFormat(undefined, { dateStyle: 'full', timeZone: tz === 'local' ? undefined : tz }).format(new Date())
+        dateDisplay.textContent = dateStr
+      } catch (e) {
+        dateDisplay.textContent = new Date().toDateString()
+      }
+ 
+      tzName.textContent = tz === 'local' ? (Intl.DateTimeFormat().resolvedOptions().timeZone || 'Local') : tz
+ 
+      const hour = d.getUTCHours()
+      greetingLarge.textContent = greetingForHour(hour)
+ 
+      const ny = getZonedDate('America/New_York')
+      const ldn = getZonedDate('Europe/London')
+      const tok = getZonedDate('Asia/Tokyo')
+      const mum = getZonedDate('Asia/Kolkata')
+      miniNY.textContent = formatTimeForDisplay(ny).time
+      miniLDN.textContent = formatTimeForDisplay(ldn).time
+      miniTOK.textContent = formatTimeForDisplay(tok).time
+      miniMUM.textContent = formatTimeForDisplay(mum).time
+    }
+ 
+    let tickInterval = null
+    function startTick() {
+      if (tickInterval) clearInterval(tickInterval)
+      tickInterval = setInterval(refresh, 1000)
+      refresh()
+    }
+ 
+    apply.addEventListener('click', () => {
+      const customVal = custom.value.trim()
+      const presetVal = preset.value
+      state.timezone = customVal || presetVal || 'local'
+      state.hour12 = (format.value === '12')
+      state.showSeconds = (seconds.value === 'true')
+      startTick()
+    })
+ 
+    saveBtn.addEventListener('click', () => {
+      try {
+        localStorage.setItem(SETTINGS_KEY, JSON.stringify(state))
+        saveBtn.textContent = 'Saved ✓'
+        setTimeout(() => saveBtn.textContent = 'Save', 1500)
+      } catch (e) {
+        saveBtn.textContent = 'Unable to save'
+        setTimeout(() => saveBtn.textContent = 'Save', 1500)
+      }
+    })
+ 
+    (function init(){
+    
+      if (state.timezone && [...preset.options].some(o => o.value === state.timezone)) {
+        preset.value = state.timezone
+      } else if (state.timezone && state.timezone !== 'local') {
+        custom.value = state.timezone
+      }
+      format.value = state.hour12 ? '12' : '24'
+      seconds.value = state.showSeconds ? 'true' : 'false'
+       
+      state.timezone = state.timezone || 'local'
+      startTick()
+    })()
+ 
+    custom.addEventListener('keyup', (e) => { if (e.key === 'Enter') apply.click() })
+  </script>
+</body>
+</html>
